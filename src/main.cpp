@@ -12021,6 +12021,7 @@ class $modify(BufMenuLayer, MenuLayer) {
         }
         auto* item = CCMenuItemSpriteExtra::create(sprite, this, menu_selector(BufMenuLayer::onBufferMenu));
         item->setID("click-before-frames-button"_spr);
+        item->setOpacity(0);
         if (auto* bottom = this->getChildByID("bottom-menu")) {
             bottom->addChild(item);
             bottom->updateLayout();
