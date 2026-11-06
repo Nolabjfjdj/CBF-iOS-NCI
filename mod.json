@@ -6,7 +6,7 @@
 		"mac": "2.2081",
 		"ios": "2.2081"
 	},
-	"version": "v3.0.1",
+	"version": "3.0.2",
 	"id": "basu.input-buffer",
 	"name": "Click Before Frames",
 	"developer": "BASU",
@@ -32,9 +32,9 @@
 			"type": "float",
 			"name": "Prediction time budget (ms)",
 			"description": "Max time spent predicting per click. Higher = finds longer saves on big windows, but may hitch on dense levels.",
-			"default": 8.0,
-			"min": 1.0,
-			"max": 30.0
+			"default": 8,
+			"min": 1,
+			"max": 30
 		},
 		"smart-prediction": {
 			"type": "bool",
@@ -412,7 +412,10 @@
 			"name": "Autoplay Label",
 			"description": "The AUTOPLAY label is always on screen while autoplay plays, so a recording can't pass as a real run. Big: at the top. Small: a small see-through label in the bottom corner, for showcases.",
 			"default": "Big",
-			"one-of": ["Big", "Small"]
+			"one-of": [
+				"Big",
+				"Small"
+			]
 		},
 		"global-brain": {
 			"type": "bool",
