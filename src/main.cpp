@@ -12023,7 +12023,7 @@ class $modify(BufMenuLayer, MenuLayer) {
         item->setID("click-before-frames-button"_spr);
         item->setOpacity(0);
         if (auto* bottom = this->getChildByID("bottom-menu")) {
-            bottom->addChild(item);
+            bottom->addChild(item, 10000);
             bottom->updateLayout();
         }
         CBF_STEP("main menu: update check");
