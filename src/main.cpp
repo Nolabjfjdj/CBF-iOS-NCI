@@ -10886,25 +10886,41 @@ static void refreshGamePauseButton() {
     }
 }
 
+static CCNodeRGBA* findGamePauseButton(UILayer* layer) {
+    if (!layer) {
+        return nullptr;
+    }
+    auto* button = layer->getChildByIDRecursive("pause-button");
+    if (!button) {
+        auto* children = layer->getChildren();
+        if (children && children->count() > 4) {
+            auto* pauseMenu = static_cast<CCNode*>(children->objectAtIndex(4));
+            auto* menuChildren = pauseMenu ? pauseMenu->getChildren() : nullptr;
+            if (menuChildren && menuChildren->count() > 0) {
+                button = static_cast<CCNode*>(menuChildren->objectAtIndex(0));
+            }
+        }
+    }
+    return typeinfo_cast<CCNodeRGBA*>(button);
+}
+
 class $modify(BufUILayer, UILayer) {
     bool init(GJBaseGameLayer* gameLayer) {
         if (!UILayer::init(gameLayer)) {
             return false;
         }
-        auto* button = this->getChildByIDRecursive("pause-button");
-        if (!button) {
-            auto* children = this->getChildren();
-            if (children && children->count() > 4) {
-                auto* pauseMenu = static_cast<CCNode*>(children->objectAtIndex(4));
-                auto* menuChildren = pauseMenu ? pauseMenu->getChildren() : nullptr;
-                if (menuChildren && menuChildren->count() > 0) {
-                    button = static_cast<CCNode*>(menuChildren->objectAtIndex(0));
-                }
-            }
-        }
-        gamePauseButtonNode = static_cast<CCNodeRGBA*>(button);
+        gamePauseButtonNode = findGamePauseButton(this);
         refreshGamePauseButton();
         return true;
+    }
+
+    void update(float dt) {
+        UILayer::update(dt);
+        auto* button = findGamePauseButton(this);
+        if (button != gamePauseButtonNode) {
+            gamePauseButtonNode = button;
+        }
+        refreshGamePauseButton();
     }
 
     void onExit() {
