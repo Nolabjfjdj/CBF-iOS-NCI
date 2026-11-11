@@ -10194,8 +10194,8 @@ private:
             CCDrawNode* sw = nullptr;
             roundRect(d0, { x + 5.f, y - 10.f, colW - 10.f, 20.f }, 6.f, m_light ? col({ 255, 255, 255 }, 0.6f) : col({ 255, 255, 255 }, 0.035f), 0.4f,
                 col(m_t.main, 0.25f));
-            label(m_page, "Gameplay Pause Button", 0.48f, m_text, { x + 12.f, y + 3.5f }, { 0.f, 0.5f });
-            label(m_page, "Hide it visually, keep it clickable", 0.3f, m_muted, { x + 12.f, y - 5.f }, { 0.f, 0.5f });
+            label(m_page, "Game Pause Button", 0.48f, m_text, { x + 12.f, y + 3.5f }, { 0.f, 0.5f });
+            label(m_page, "Hidden but still clickable", 0.3f, m_muted, { x + 12.f, y - 5.f }, { 0.f, 0.5f });
             switchItem({ x + colW - 23.f, y }, !Mod::get()->getSettingValue<bool>("hide-game-pause-button"), menu_selector(BufferMenu::onGamePauseButton), 0, &sw);
             y -= 21.f;
         }
