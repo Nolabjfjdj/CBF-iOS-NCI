@@ -10993,6 +10993,13 @@ class $modify(BufPauseLayer, PauseLayer) {
             refreshGamePauseButton(findGameUILayer(scene));
         }
     }
+
+    void update(float dt) {
+        PauseLayer::update(dt);
+        if (auto* scene = CCDirector::get()->getRunningScene()) {
+            refreshGamePauseButton(findGameUILayer(scene));
+        }
+    }
 };
 
 // v2.99.1: startup checkpoints in the Geode log (each written once), to find where a phone
