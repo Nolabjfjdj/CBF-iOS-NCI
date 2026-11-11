@@ -9255,6 +9255,8 @@ namespace online {
 // v3.0 menu: a sidebar (CBF logo, Log / Stage / Modes / Tools, theme picker, platform), a header
 // with the stage chip, a footer with the settings gear. Settings and Tuning are pages of their own
 // with a Done button. Everything is drawn in code (CCDrawNode), so it looks the same everywhere.
+static void refreshGamePauseButton();
+
 class BufferMenu : public geode::Popup {
     struct Option {
         char const* key;    // mod setting, or nullptr for the runtime path view
@@ -10876,7 +10878,7 @@ class $modify(BufEndLevelLayer, EndLevelLayer) {
 // v2.99.4: the pause menu button is added by one function, from two places. On iOS the game
 // builds the pause menu with its setup inlined, so the customSetup hook alone never ran there;
 // PlayLayer::pauseGame (below) adds it after the pause menu is shown. Never added twice.
-static CCNode* gamePauseButtonNode = nullptr;
+static CCNodeRGBA* gamePauseButtonNode = nullptr;
 
 static void refreshGamePauseButton() {
     if (gamePauseButtonNode) {
@@ -10900,7 +10902,7 @@ class $modify(BufUILayer, UILayer) {
                 }
             }
         }
-        gamePauseButtonNode = button;
+        gamePauseButtonNode = static_cast<CCNodeRGBA*>(button);
         refreshGamePauseButton();
         return true;
     }
