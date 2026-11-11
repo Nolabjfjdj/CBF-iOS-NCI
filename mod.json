@@ -517,6 +517,12 @@
 				"arrow-step": 10,
 				"big-arrows": false
 			}
+		},
+		"hide-game-pause-button": {
+			"type": "bool",
+			"name": "Hide gameplay pause button",
+			"description": "Hide the pause button during gameplay while keeping its touch area clickable.",
+			"default": false
 		}
 	},
 	"resources": {
