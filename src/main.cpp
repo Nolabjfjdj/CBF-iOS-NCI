@@ -27,6 +27,7 @@
 #include <Geode/ui/TextInput.hpp>
 #include <Geode/modify/PlayLayer.hpp>
 #include <Geode/modify/PauseLayer.hpp>
+#include <Geode/modify/UILayer.hpp>
 #include <Geode/modify/EndLevelLayer.hpp>
 #include <Geode/ui/GeodeUI.hpp>
 #include <Geode/ui/Popup.hpp>
@@ -10182,9 +10183,20 @@ private:
             CCDrawNode* sw = nullptr;
             roundRect(d0, { x + 5.f, y - 10.f, colW - 10.f, 20.f }, 6.f, m_light ? col({ 255, 255, 255 }, 0.6f) : col({ 255, 255, 255 }, 0.035f), 0.4f,
                 col(m_t.main, 0.25f));
-            label(m_page, "Pause Menu Button", 0.48f, m_text, { x + 12.f, y + 3.5f }, { 0.f, 0.5f });
-            label(m_page, "The heart button in the pause menu", 0.3f, m_muted, { x + 12.f, y - 5.f }, { 0.f, 0.5f });
+            label(m_page, "CBF Pause Menu Button", 0.48f, m_text, { x + 12.f, y + 3.5f }, { 0.f, 0.5f });
+            label(m_page, "The CBF button inside the pause menu", 0.3f, m_muted, { x + 12.f, y - 5.f }, { 0.f, 0.5f });
             switchItem({ x + colW - 23.f, y }, Mod::get()->getSavedValue<bool>("pause-button", true), menu_selector(BufferMenu::onPauseButton), 0, &sw);
+            y -= 21.f;
+        }
+        {
+            auto* d0 = CCDrawNode::create();
+            m_page->addChild(d0, 1);
+            CCDrawNode* sw = nullptr;
+            roundRect(d0, { x + 5.f, y - 10.f, colW - 10.f, 20.f }, 6.f, m_light ? col({ 255, 255, 255 }, 0.6f) : col({ 255, 255, 255 }, 0.035f), 0.4f,
+                col(m_t.main, 0.25f));
+            label(m_page, "Gameplay Pause Button", 0.48f, m_text, { x + 12.f, y + 3.5f }, { 0.f, 0.5f });
+            label(m_page, "Hide it visually, keep it clickable", 0.3f, m_muted, { x + 12.f, y - 5.f }, { 0.f, 0.5f });
+            switchItem({ x + colW - 23.f, y }, !Mod::get()->getSettingValue<bool>("hide-game-pause-button"), menu_selector(BufferMenu::onGamePauseButton), 0, &sw);
             y -= 21.f;
         }
         auto row = [&](char const* name) {
@@ -10608,6 +10620,14 @@ private:
         rebuildPage();
     }
 
+    void onGamePauseButton(CCObject*) {
+        bool hide = !Mod::get()->getSettingValue<bool>("hide-game-pause-button");
+        Mod::get()->setSettingValue<bool>("hide-game-pause-button", hide);
+        refreshGamePauseButton();
+        say("gameplay pause button {}", hide ? "hidden but clickable" : "visible");
+        rebuildPage();
+    }
+
     void onStageButton(CCObject* sender) {
         int i = sender->getTag();
         if (i == static_cast<int>(std::size(STAGE_BTN))) {
@@ -10856,6 +10876,43 @@ class $modify(BufEndLevelLayer, EndLevelLayer) {
 // v2.99.4: the pause menu button is added by one function, from two places. On iOS the game
 // builds the pause menu with its setup inlined, so the customSetup hook alone never ran there;
 // PlayLayer::pauseGame (below) adds it after the pause menu is shown. Never added twice.
+static CCNode* gamePauseButtonNode = nullptr;
+
+static void refreshGamePauseButton() {
+    if (gamePauseButtonNode) {
+        gamePauseButtonNode->setOpacity(Mod::get()->getSettingValue<bool>("hide-game-pause-button") ? 0 : 255);
+    }
+}
+
+class $modify(BufUILayer, UILayer) {
+    bool init(GJBaseGameLayer* gameLayer) {
+        if (!UILayer::init(gameLayer)) {
+            return false;
+        }
+        auto* button = this->getChildByIDRecursive("pause-button");
+        if (!button) {
+            auto* children = this->getChildren();
+            if (children && children->count() > 4) {
+                auto* pauseMenu = static_cast<CCNode*>(children->objectAtIndex(4));
+                auto* menuChildren = pauseMenu ? pauseMenu->getChildren() : nullptr;
+                if (menuChildren && menuChildren->count() > 0) {
+                    button = static_cast<CCNode*>(menuChildren->objectAtIndex(0));
+                }
+            }
+        }
+        gamePauseButtonNode = button;
+        refreshGamePauseButton();
+        return true;
+    }
+
+    void onExit() {
+        if (gamePauseButtonNode) {
+            gamePauseButtonNode = nullptr;
+        }
+        UILayer::onExit();
+    }
+};
+
 static void addPauseButton(CCNode* pause) {
     if (!pause || pause->getChildByID("click-before-frames-menu"_spr)) {
         return;
