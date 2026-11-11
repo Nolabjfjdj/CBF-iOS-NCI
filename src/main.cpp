@@ -10904,6 +10904,31 @@ static CCNodeRGBA* findGamePauseButton(UILayer* layer) {
     return typeinfo_cast<CCNodeRGBA*>(button);
 }
 
+static UILayer* findGameUILayer(CCNode* node) {
+    if (!node) {
+        return nullptr;
+    }
+    if (auto* layer = typeinfo_cast<UILayer*>(node)) {
+        return layer;
+    }
+    if (auto* children = node->getChildren()) {
+        for (auto* child : CCArrayExt<CCNode*>(children)) {
+            if (auto* layer = findGameUILayer(child)) {
+                return layer;
+            }
+        }
+    }
+    return nullptr;
+}
+
+static void refreshGamePauseButton(UILayer* layer) {
+    if (!layer) {
+        return;
+    }
+    gamePauseButtonNode = findGamePauseButton(layer);
+    refreshGamePauseButton();
+}
+
 class $modify(BufUILayer, UILayer) {
     bool init(GJBaseGameLayer* gameLayer) {
         if (!UILayer::init(gameLayer)) {
@@ -10960,6 +10985,13 @@ class $modify(BufPauseLayer, PauseLayer) {
     void customSetup() {
         PauseLayer::customSetup();
         addPauseButton(this);
+    }
+
+    void onEnter() {
+        PauseLayer::onEnter();
+        if (auto* scene = CCDirector::get()->getRunningScene()) {
+            refreshGamePauseButton(findGameUILayer(scene));
+        }
     }
 };
 
