@@ -10880,9 +10880,21 @@ class $modify(BufEndLevelLayer, EndLevelLayer) {
 // PlayLayer::pauseGame (below) adds it after the pause menu is shown. Never added twice.
 static CCNodeRGBA* gamePauseButtonNode = nullptr;
 
+static void setPauseButtonVisuals(CCNode* node, GLubyte opacity) {
+    if (!node) {
+        return;
+    }
+    for (auto* child : CCArrayExt<CCNode*>(node->getChildren())) {
+        if (auto* rgba = typeinfo_cast<CCNodeRGBA*>(child)) {
+            rgba->setOpacity(opacity);
+        }
+        setPauseButtonVisuals(child, opacity);
+    }
+}
+
 static void refreshGamePauseButton() {
     if (gamePauseButtonNode) {
-        gamePauseButtonNode->setOpacity(Mod::get()->getSettingValue<bool>("hide-game-pause-button") ? 0 : 255);
+        setPauseButtonVisuals(gamePauseButtonNode, Mod::get()->getSettingValue<bool>("hide-game-pause-button") ? 0 : 255);
     }
 }
 
