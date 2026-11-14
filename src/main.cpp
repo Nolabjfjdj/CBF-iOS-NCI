@@ -2859,6 +2859,10 @@ namespace {
             }
         }
         for (; tick < total; ++tick) {
+            if ((tick & 3) == 0 && clickOverTime()) {
+                *end = SimEnd::StopSearch;
+                break;
+            }
             second = buf.simSecond;  // v2.84: after a solo portal only P1 goes on (v2.85: after a dual portal both)
             if (!movers.empty()) {
                 placeMovers(off + tick + 1);  // where they'll be after this step
@@ -3083,16 +3087,16 @@ namespace {
         buf.orbClick = buf.assumeOrbs;
         buf.touchedOrb = false;
         int first = simulate(layer, p1, p2, dual, delay, down, horizon, releaseAfter, stopAt, end);
-        if (!buf.tryBothOrbs || !buf.smart || !buf.touchedOrb || first >= stopAt || clickOverTime()) {
+        if (*end == SimEnd::StopSearch || !buf.tryBothOrbs || !buf.smart || !buf.touchedOrb || first >= stopAt || clickOverTime()) {
             return first;
         }
-        SimEnd firstEnd = *end;
         buf.orbClick = !buf.assumeOrbs;
         int second = simulate(layer, p1, p2, dual, delay, down, horizon, releaseAfter, stopAt, end);
         buf.orbClick = buf.assumeOrbs;
-        if (firstEnd != SimEnd::StopSearch) {
-            *end = SimEnd::Ok;
+        if (*end == SimEnd::StopSearch) {
+            return std::max(first, second);
         }
+        *end = SimEnd::Ok;
         int best = std::max(first, second);
         // v2.26: some orbs only work when clicked at a specific moment inside them (levels
         // like Orbit). The ghost's orb clicks are also tried 3 and 6 ticks into the orb.
@@ -3105,6 +3109,10 @@ namespace {
                 buf.orbClickDelay = 0;
                 buf.orbClick = buf.assumeOrbs;
                 best = std::max(best, ret);
+                if (lateEnd == SimEnd::StopSearch) {
+                    *end = SimEnd::StopSearch;
+                    break;
+                }
                 if (best >= stopAt || clickOverTime()) {
                     break;
                 }
