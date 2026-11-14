@@ -3615,7 +3615,7 @@ namespace {
             if (sameCrash(k, ret, base, streak)) {
                 return 0;
             }
-            if (clickOverTime() || std::chrono::duration<double, std::milli>(clock::now() - start).count() > budget) {
+            if (std::chrono::duration<double, std::milli>(clock::now() - start).count() > budget) {
                 if (!quiet) {
                     say("prediction budget hit at +{} ticks", k);
                 }
@@ -3751,7 +3751,7 @@ namespace {
                 }
                 return k;
             }
-            if (std::chrono::duration<double, std::milli>(clock::now() - start).count() > budget) {
+            if (clickOverTime() || std::chrono::duration<double, std::milli>(clock::now() - start).count() > budget) {
                 say("prediction budget hit at +{} ticks", k);
                 budgetCutK = k;
                 return 0;
