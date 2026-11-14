@@ -3461,6 +3461,9 @@ namespace {
             return ret;
         }
         for (int margin : WAVE_TURN_MARGINS) {
+            if (clickOverTime()) {
+                break;
+            }
             int turnAt = ret - st(margin);
             if (turnAt < st(WAVE_MIN_TURN)) {
                 break;
@@ -3474,6 +3477,9 @@ namespace {
                     buf.baseCrash = ret;
                 }
                 return horizon;
+            }
+            if (clickOverTime()) {
+                break;
             }
         }
         return ret;
@@ -3732,17 +3738,20 @@ namespace {
                 // the spike corner, so a pixel of difference in the real run can still clip
                 // it. If the next two delays are safe too, take the middle one: a tick of
                 // room on both sides.
-                if (buf.waveMargin && k + 2 <= maxDelay) {
+                if (buf.waveMargin && k + 2 <= maxDelay && !clickOverTime()) {
                     SimEnd e1, e2;
-                    if (waveScore(layer, p1, p2, dual, k + 1, down, horizon, target, &e1) >= target &&
-                        waveScore(layer, p1, p2, dual, k + 2, down, horizon, target, &e2) >= target) {
-                        marginUsed = true;
-                        return k + 1;
+                    int next = waveScore(layer, p1, p2, dual, k + 1, down, horizon, target, &e1);
+                    if (next >= target && !clickOverTime()) {
+                        int after = waveScore(layer, p1, p2, dual, k + 2, down, horizon, target, &e2);
+                        if (after >= target) {
+                            marginUsed = true;
+                            return k + 1;
+                        }
                     }
                 }
                 return k;
             }
-            if (std::chrono::duration<double, std::milli>(clock::now() - start).count() > budget) {
+            if (clickOverTime() || std::chrono::duration<double, std::milli>(clock::now() - start).count() > budget) {
                 say("prediction budget hit at +{} ticks", k);
                 budgetCutK = k;
                 return 0;
